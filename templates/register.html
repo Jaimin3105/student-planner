@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Register - Smart Study Planner</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+<script defer src="{{ url_for('static', filename='js/script.js') }}"></script>
+</head>
+
+<body class="auth-page page-register">
+
+<button type="button" class="theme-toggle auth-theme-toggle" data-theme-toggle aria-label="Toggle color theme">
+<i class="fa-solid fa-moon"></i>
+<span>Dark mode</span>
+</button>
+
+<div class="auth-layout">
+
+<div class="auth-showcase">
+<div class="auth-logo">
+<span class="brand-mark"><i class="fa-solid fa-graduation-cap"></i></span>
+<div class="brand-copy">
+<span class="brand-eyebrow">Smart Study</span>
+<strong>Planner</strong>
+</div>
+</div>
+
+<p class="eyebrow">Create Your Workspace</p>
+<h1>Build a study system that feels clean, modern, and focused.</h1>
+<p>Create your account to organize subjects, capture deadlines, monitor progress, and generate a polished daily study schedule tailored to your goals.</p>
+
+<div class="auth-feature-list">
+<div class="auth-feature">
+<i class="fa-solid fa-book-open-reader"></i>
+<div>
+<strong>Subject Priorities</strong>
+<span>Classify each subject by importance so your planner knows what deserves more attention.</span>
+</div>
+</div>
+
+<div class="auth-feature">
+<i class="fa-solid fa-bolt"></i>
+<div>
+<strong>Fast Task Capture</strong>
+<span>Add tasks quickly and keep your workload visible in a professional card-based workspace.</span>
+</div>
+</div>
+
+<div class="auth-feature">
+<i class="fa-solid fa-palette"></i>
+<div>
+<strong>Modern Portfolio Look</strong>
+<span>Showcase a clean startup-style interface that works well for demos, submissions, and your portfolio.</span>
+</div>
+</div>
+</div>
+</div>
+
+<div class="login-box">
+<p class="eyebrow">New Account</p>
+<h2>Create Account</h2>
+<p class="auth-subtitle">Set up your planner and start managing study goals with a better experience.</p>
+
+{% if error %}
+<p class="form-error">{{ error }}</p>
+{% endif %}
+
+<form method="POST">
+<input type="text" name="name" placeholder="Name" minlength="2" maxlength="50" value="{{ request.form.get('name', '') }}" required>
+<input type="email" name="email" placeholder="Email" maxlength="120" value="{{ request.form.get('email', '') }}" required>
+<input type="password" name="password" placeholder="Password" minlength="6" maxlength="128" required>
+<button type="submit" class="primary-btn"><i class="fa-solid fa-user-plus"></i><span>Register</span></button>
+<p class="auth-switch">Already have an account? <a href="{{ url_for('login') }}">Login</a></p>
+</form>
+</div>
+
+</div>
+
+</body>
+</html>
