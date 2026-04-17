@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Study Schedule - Smart Study Planner</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+<script defer src="{{ url_for('static', filename='js/script.js') }}"></script>
+</head>
+
+<body class="page-shell page-schedule">
+
+<div class="container">
+
+<aside class="sidebar" id="appSidebar">
+<div class="sidebar-top">
+<a class="brand" href="{{ url_for('dashboard') }}">
+<span class="brand-mark"><i class="fa-solid fa-graduation-cap"></i></span>
+<span class="brand-copy">
+<span class="brand-eyebrow">Smart Study</span>
+<strong>Planner</strong>
+</span>
+</a>
+<button type="button" class="icon-btn sidebar-close" data-sidebar-close aria-label="Close menu">
+<i class="fa-solid fa-xmark"></i>
+</button>
+</div>
+
+<div class="sidebar-section">
+<p class="sidebar-label">Workspace</p>
+<nav class="sidebar-nav">
+<a class="nav-link" href="{{ url_for('dashboard') }}"><i class="fa-solid fa-chart-line"></i><span>Dashboard</span></a>
+<a class="nav-link" href="{{ url_for('subjects') }}"><i class="fa-solid fa-book-open"></i><span>Subjects</span></a>
+<a class="nav-link" href="{{ url_for('tasks') }}"><i class="fa-solid fa-list-check"></i><span>Tasks</span></a>
+<a class="nav-link active" href="{{ url_for('schedule') }}"><i class="fa-solid fa-calendar-days"></i><span>Schedule</span></a>
+<a class="nav-link" href="{{ url_for('logout') }}"><i class="fa-solid fa-arrow-right-from-bracket"></i><span>Logout</span></a>
+</nav>
+</div>
+
+<div class="sidebar-footer">
+<button type="button" class="theme-toggle" data-theme-toggle aria-label="Toggle color theme">
+<i class="fa-solid fa-moon"></i>
+<span>Dark mode</span>
+</button>
+</div>
+</aside>
+
+<div class="sidebar-overlay" data-sidebar-close></div>
+
+<main class="main">
+
+<div class="page-header">
+<div class="page-header-main">
+<div class="header-tools">
+<button type="button" class="icon-btn menu-toggle" data-sidebar-open aria-label="Open menu">
+<i class="fa-solid fa-bars"></i>
+</button>
+<p class="eyebrow">Study Schedule</p>
+</div>
+<h1>Hello, {{ user_name }}</h1>
+<p class="page-subtitle">Generate a polished one-day study plan from your current pending tasks, selected date, subject priority, and preferred available hours.</p>
+</div>
+
+<div class="header-actions">
+<form method="GET" action="{{ url_for('schedule') }}" class="schedule-toolbar">
+<label for="plan_date">Study Date</label>
+<input type="date" name="plan_date" id="plan_date" class="schedule-select" value="{{ selected_plan_date }}">
+<label for="hours">Study Hours</label>
+<select name="hours" id="hours" class="schedule-select">
+{% for option in range(1, 9) %}
+<option value="{{ option }}" {% if daily_hours == option %}selected{% endif %}>{{ option }} hour{{ '' if option == 1 else 's' }}</option>
+{% endfor %}
+</select>
+<button type="submit" class="primary-btn"><i class="fa-solid fa-wand-magic-sparkles"></i><span>Auto Generate</span></button>
+</form>
+</div>
+</div>
+
+<div class="cards">
+
+<div class="card stat-card">
+<div class="stat-header">
+<span class="card-icon"><i class="fa-solid fa-list-check"></i></span>
+<span class="card-meta-pill">Queue</span>
+</div>
+<h3>Pending Tasks</h3>
+<p class="card-number">{{ schedule_summary.task_count }}</p>
+<span class="card-meta">Tasks still available to be scheduled for focused study time.</span>
+</div>
+
+<div class="card stat-card">
+<div class="stat-header">
+<span class="card-icon accent-green"><i class="fa-solid fa-clock"></i></span>
+<span class="card-meta-pill">Today</span>
+</div>
+<h3>Planned Hours</h3>
+<p class="card-number">{{ schedule_summary.planned_hours }}</p>
+<span class="card-meta">Hours assigned to your selected study date only.</span>
+</div>
+
+<div class="card stat-card">
+<div class="stat-header">
+<span class="card-icon accent-orange"><i class="fa-solid fa-hourglass-half"></i></span>
+<span class="card-meta-pill">Limit</span>
+</div>
+<h3>Daily Target</h3>
+<p class="card-number">{{ daily_hours }}</p>
+<span class="card-meta">Maximum study hours allowed in the one-day plan.</span>
+</div>
+
+<div class="card stat-card">
+<div class="stat-header">
+<span class="card-icon accent-purple"><i class="fa-solid fa-bolt"></i></span>
+<span class="card-meta-pill">Priority</span>
+</div>
+<h3>High Priority</h3>
+<p class="card-number">{{ schedule_summary.high_priority_count }}</p>
+<span class="card-meta">Important subject tasks boosted first inside the daily schedule.</span>
+</div>
+
+<div class="card stat-card">
+<div class="stat-header">
+<span class="card-icon accent-orange"><i class="fa-solid fa-triangle-exclamation"></i></span>
+<span class="card-meta-pill">Urgent</span>
+</div>
+<h3>Urgent Tasks</h3>
+<p class="card-number">{{ schedule_summary.urgent_count }}</p>
+<span class="card-meta">Tasks due today or tomorrow that deserve fast attention.</span>
+</div>
+
+</div>
+
+{% if schedule_days %}
+<div class="schedule-grid">
+{% for day in schedule_days %}
+<div class="panel schedule-day-card">
+<div class="panel-head">
+<div class="panel-title-wrap">
+<h3>{{ day.day_name }}</h3>
+<p class="schedule-date">{{ day.date_label }}</p>
+</div>
+<span class="badge"><i class="fa-solid fa-clock"></i><span>{{ day.total_hours }} hour{{ '' if day.total_hours == 1 else 's' }}</span></span>
+</div>
+
+<div class="list schedule-list">
+{% for entry in day.entries %}
+<div class="list-item schedule-item">
+<div class="schedule-item-content">
+<div class="schedule-item-head">
+<strong>{{ entry.subject }}</strong>
+<span class="priority-badge priority-{{ entry.priority_class }}">{{ entry.priority }} Priority</span>
+{% if entry.is_urgent %}
+<span class="urgent-tag">Urgent</span>
+{% endif %}
+</div>
+<p class="schedule-meta">{{ entry.task_name }}</p>
+<p class="schedule-meta">Deadline: {{ entry.deadline }} | {{ entry.deadline_note }}</p>
+</div>
+
+<span class="schedule-hours">
+  {% if entry.hours > 0 and entry.minutes > 0 %}
+    {{ entry.hours }} hour{{ '' if entry.hours == 1 else 's' }} {{ entry.minutes }} min{{ '' if entry.minutes == 1 else 's' }}
+  {% elif entry.hours > 0 %}
+    {{ entry.hours }} hour{{ '' if entry.hours == 1 else 's' }}
+  {% else %}
+    {{ entry.minutes }} min{{ '' if entry.minutes == 1 else 's' }}
+  {% endif %}
+</span>
+</div>
+{% endfor %}
+</div>
+</div>
+{% endfor %}
+</div>
+{% else %}
+<div class="panel schedule-empty">
+<h3>No schedule available yet</h3>
+<p class="empty-state">You do not have any pending tasks to assign to this date. Add tasks first, then auto-generate a focused one-day schedule.</p>
+<a class="primary-btn" href="{{ url_for('tasks') }}"><i class="fa-solid fa-plus"></i><span>Add or Manage Tasks</span></a>
+</div>
+{% endif %}
+
+</main>
+
+</div>
+
+</body>
+</html>
