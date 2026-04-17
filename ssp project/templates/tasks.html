@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Tasks - Smart Study Planner</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+<script defer src="{{ url_for('static', filename='js/script.js') }}"></script>
+</head>
+
+<body class="page-shell page-tasks">
+
+<div class="container">
+
+<aside class="sidebar" id="appSidebar">
+<div class="sidebar-top">
+<a class="brand" href="{{ url_for('dashboard') }}">
+<span class="brand-mark"><i class="fa-solid fa-graduation-cap"></i></span>
+<span class="brand-copy">
+<span class="brand-eyebrow">Smart Study</span>
+<strong>Planner</strong>
+</span>
+</a>
+<button type="button" class="icon-btn sidebar-close" data-sidebar-close aria-label="Close menu">
+<i class="fa-solid fa-xmark"></i>
+</button>
+</div>
+
+<div class="sidebar-section">
+<p class="sidebar-label">Workspace</p>
+<nav class="sidebar-nav">
+<a class="nav-link" href="{{ url_for('dashboard') }}"><i class="fa-solid fa-chart-line"></i><span>Dashboard</span></a>
+<a class="nav-link" href="{{ url_for('subjects') }}"><i class="fa-solid fa-book-open"></i><span>Subjects</span></a>
+<a class="nav-link active" href="{{ url_for('tasks') }}"><i class="fa-solid fa-list-check"></i><span>Tasks</span></a>
+<a class="nav-link" href="{{ url_for('schedule') }}"><i class="fa-solid fa-calendar-days"></i><span>Schedule</span></a>
+<a class="nav-link" href="{{ url_for('logout') }}"><i class="fa-solid fa-arrow-right-from-bracket"></i><span>Logout</span></a>
+</nav>
+</div>
+
+<div class="sidebar-footer">
+<button type="button" class="theme-toggle" data-theme-toggle aria-label="Toggle color theme">
+<i class="fa-solid fa-moon"></i>
+<span>Dark mode</span>
+</button>
+</div>
+</aside>
+
+<div class="sidebar-overlay" data-sidebar-close></div>
+
+<main class="main">
+
+<div class="page-header">
+<div class="page-header-main">
+<div class="header-tools">
+<button type="button" class="icon-btn menu-toggle" data-sidebar-open aria-label="Open menu">
+<i class="fa-solid fa-bars"></i>
+</button>
+<p class="eyebrow">Task Management</p>
+</div>
+<h1>Hello, {{ user_name }}</h1>
+<p class="page-subtitle">Add tasks, track deadlines, and move quickly from planning to action with a cleaner study workflow.</p>
+</div>
+
+<div class="header-actions">
+<a class="secondary-btn" href="{{ url_for('dashboard') }}"><i class="fa-solid fa-chart-pie"></i><span>View Dashboard</span></a>
+<a class="primary-btn" href="{{ url_for('schedule') }}"><i class="fa-solid fa-wand-magic-sparkles"></i><span>Generate Schedule</span></a>
+</div>
+</div>
+
+<div class="subject-layout">
+
+<div class="panel form-panel">
+<div class="panel-head">
+<div class="panel-title-wrap">
+<h3>Add New Task</h3>
+<p>Capture the next thing you need to study and give it a clear deadline.</p>
+</div>
+<span class="badge"><i class="fa-solid fa-plus"></i><span>Quick Add</span></span>
+</div>
+
+{% if error %}
+<p class="form-error">{{ error }}</p>
+{% endif %}
+
+{% if subjects %}
+<form method="POST" class="subject-form">
+<input type="text" name="task_name" placeholder="Task name" minlength="2" maxlength="100" value="{{ request.form.get('task_name', '') }}" required>
+
+<select name="subject_id" required>
+<option value="">Select subject</option>
+{% for subject in subjects %}
+<option value="{{ subject['id'] }}">{{ subject["name"] }} ({{ subject["priority"] }})</option>
+{% endfor %}
+</select>
+
+<input type="date" name="deadline" required>
+
+<label style="display: flex; align-items: center; gap: 8px; margin: 10px 0; cursor: pointer;">
+<input type="checkbox" name="repeat_daily" id="repeat_daily">
+<span>Repeat daily (task resets after 24 hours)</span>
+</label>
+
+<button type="submit" class="primary-btn"><i class="fa-solid fa-plus"></i><span>Add Task</span></button>
+</form>
+{% else %}
+<p class="empty-state">You need at least one subject before creating tasks.</p>
+<a class="primary-btn" href="{{ url_for('subjects') }}"><i class="fa-solid fa-book-medical"></i><span>Add Subject First</span></a>
+{% endif %}
+</div>
+
+<div class="panel">
+<div class="panel-head">
+<div class="panel-title-wrap">
+<h3>Your Tasks</h3>
+<p>See everything you still need to finish and update progress in one place.</p>
+</div>
+<span class="badge"><i class="fa-solid fa-layer-group"></i><span>{{ tasks|length }} Total</span></span>
+</div>
+
+{% if tasks %}
+<div class="list">
+{% for task in tasks %}
+<div class="list-item task-list-item">
+<div class="list-item-body">
+<span class="list-item-icon"><i class="fa-solid fa-list-check"></i></span>
+<div>
+<strong>{{ task["task_name"] }}</strong>
+<p class="meta-inline">
+<span>{{ task["subject"] }}</span>
+<span class="meta-dot"></span>
+<span>Due {{ task["deadline"] }}</span>
+{% if task["repeat_daily"] %}
+<span class="meta-dot"></span>
+<span style="color: #4CAF50; font-weight: 600;"><i class="fa-solid fa-repeat"></i> Repeats Daily</span>
+{% endif %}
+</p>
+</div>
+</div>
+
+<div class="task-row-actions">
+<span class="status {{ 'completed' if task['status'] == 'Completed' else 'pending' }}">
+{{ task["status"] }}
+</span>
+
+{% if task["status"] != "Completed" %}
+<form method="POST" action="{{ url_for('complete_task', id=task['id']) }}">
+<button type="submit" class="secondary-btn"><i class="fa-solid fa-check"></i><span>Mark Complete</span></button>
+</form>
+{% else %}
+<form method="POST" action="{{ url_for('incomplete_task', id=task['id']) }}">
+<button type="submit" class="secondary-btn"><i class="fa-solid fa-undo"></i><span>Undo</span></button>
+</form>
+{% endif %}
+
+<form method="POST" action="{{ url_for('delete_task', id=task['id']) }}">
+<button type="submit" class="danger-btn"><i class="fa-solid fa-trash"></i><span>Delete</span></button>
+</form>
+</div>
+</div>
+{% endfor %}
+</div>
+{% else %}
+<p class="empty-state">No tasks available yet. Add your first task from the form to start planning smarter.</p>
+{% endif %}
+</div>
+
+</div>
+
+</main>
+
+</div>
+
+</body>
+</html>

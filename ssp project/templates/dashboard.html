@@ -1,0 +1,402 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dashboard - Smart Study Planner</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+<script defer src="{{ url_for('static', filename='js/script.js') }}"></script>
+</head>
+
+<body class="page-shell page-dashboard">
+
+<div class="container">
+
+<aside class="sidebar" id="appSidebar">
+<div class="sidebar-top">
+<a class="brand" href="{{ url_for('dashboard') }}">
+<span class="brand-mark"><i class="fa-solid fa-graduation-cap"></i></span>
+<span class="brand-copy">
+<span class="brand-eyebrow">Smart Study</span>
+<strong>Planner</strong>
+</span>
+</a>
+<button type="button" class="icon-btn sidebar-close" data-sidebar-close aria-label="Close menu">
+<i class="fa-solid fa-xmark"></i>
+</button>
+</div>
+
+<div class="sidebar-section">
+<p class="sidebar-label">Workspace</p>
+<nav class="sidebar-nav">
+<a class="nav-link active" href="{{ url_for('dashboard') }}"><i class="fa-solid fa-chart-line"></i><span>Dashboard</span></a>
+<a class="nav-link" href="{{ url_for('subjects') }}"><i class="fa-solid fa-book-open"></i><span>Subjects</span></a>
+<a class="nav-link" href="{{ url_for('tasks') }}"><i class="fa-solid fa-list-check"></i><span>Tasks</span></a>
+<a class="nav-link" href="{{ url_for('schedule') }}"><i class="fa-solid fa-calendar-days"></i><span>Schedule</span></a>
+<a class="nav-link" href="{{ url_for('logout') }}"><i class="fa-solid fa-arrow-right-from-bracket"></i><span>Logout</span></a>
+</nav>
+</div>
+
+<div class="sidebar-footer">
+<button type="button" class="theme-toggle" data-theme-toggle aria-label="Toggle color theme">
+<i class="fa-solid fa-moon"></i>
+<span>Dark mode</span>
+</button>
+</div>
+</aside>
+
+<div class="sidebar-overlay" data-sidebar-close></div>
+
+<main class="main">
+
+<div class="page-header">
+<div class="page-header-main">
+<div class="header-tools">
+<button type="button" class="icon-btn menu-toggle" data-sidebar-open aria-label="Open menu">
+<i class="fa-solid fa-bars"></i>
+</button>
+<p class="eyebrow">Welcome back</p>
+</div>
+<h1>{{ user_name }}</h1>
+<p class="page-subtitle">Track your study progress, review task momentum, and keep every deadline under control with a cleaner planner workspace.</p>
+</div>
+
+<div class="header-actions">
+<a class="secondary-btn" href="{{ url_for('schedule') }}"><i class="fa-solid fa-calendar-check"></i><span>Open Schedule</span></a>
+<a class="primary-btn" href="{{ url_for('tasks') }}"><i class="fa-solid fa-plus"></i><span>Manage Tasks</span></a>
+</div>
+</div>
+
+<div class="cards">
+
+<div class="card stat-card">
+<div class="stat-header">
+<span class="card-icon"><i class="fa-solid fa-book-open"></i></span>
+<span class="card-meta-pill">Subjects</span>
+</div>
+<h3>Total Subjects</h3>
+<p class="card-number">{{ total_subjects }}</p>
+<span class="card-meta">Subjects added to your planner and ready for focused study sessions.</span>
+</div>
+
+<div class="card stat-card">
+<div class="stat-header">
+<span class="card-icon accent-purple"><i class="fa-solid fa-list-check"></i></span>
+<span class="card-meta-pill">Tasks</span>
+</div>
+<h3>Total Tasks</h3>
+<p class="card-number">{{ task_stats.total }}</p>
+<span class="card-meta">All tasks created in your account across every subject.</span>
+</div>
+
+<div class="card stat-card">
+<div class="stat-header">
+<span class="card-icon accent-green"><i class="fa-solid fa-circle-check"></i></span>
+<span class="card-meta-pill">Done</span>
+</div>
+<h3>Completed Tasks</h3>
+<p class="card-number">{{ task_stats.completed }}</p>
+<span class="card-meta">Finished tasks that already moved your study plan forward.</span>
+</div>
+
+<div class="card stat-card">
+<div class="stat-header">
+<span class="card-icon accent-orange"><i class="fa-solid fa-hourglass-half"></i></span>
+<span class="card-meta-pill">Focus</span>
+</div>
+<h3>Pending Tasks</h3>
+<p class="card-number">{{ task_stats.pending }}</p>
+<span class="card-meta">Upcoming work still waiting for your attention and study time.</span>
+</div>
+
+</div>
+
+<div class="dashboard-grid">
+<div class="panel chart-panel chart-panel-full">
+<div class="panel-head">
+<div class="panel-title-wrap">
+<h3>Task Completion Overview</h3>
+<p>Live analytics from your personal task list in SQLite.</p>
+</div>
+<span class="badge"><i class="fa-solid fa-chart-pie"></i><span>{{ task_stats.completed }}/{{ task_stats.total }} Completed</span></span>
+</div>
+
+<div class="chart-layout">
+<div class="chart-wrap">
+<canvas id="taskChart"></canvas>
+<div id="chartEmptyState" class="empty-chart" style="display:none;">
+<p>No task data yet. Add tasks to unlock your completion chart.</p>
+</div>
+</div>
+
+<div class="chart-summary">
+<div class="summary-item">
+<span class="summary-color completed-dot"></span>
+<div>
+<strong>{{ task_stats.completed }}</strong>
+<p>Completed tasks</p>
+</div>
+</div>
+
+<div class="summary-item">
+<span class="summary-color pending-dot"></span>
+<div>
+<strong>{{ task_stats.pending }}</strong>
+<p>Pending tasks</p>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+
+<div class="dashboard-grid">
+<div class="panel">
+<div class="panel-head">
+<div class="panel-title-wrap">
+<h3>This Week's Progress</h3>
+<p>Tasks completed over the last 7 days.</p>
+</div>
+<span class="badge"><i class="fa-solid fa-fire"></i><span>{{ weekly_progress.total }} tasks</span></span>
+</div>
+
+<div class="chart-layout">
+<div class="chart-wrap">
+<canvas id="weeklyChart" height="200"></canvas>
+</div>
+</div>
+</div>
+
+<div class="panel">
+<div class="panel-head">
+<div class="panel-title-wrap">
+<h3>Monthly Overview</h3>
+<p>Tasks completed over the last 30 days.</p>
+</div>
+<span class="badge"><i class="fa-solid fa-chart-line"></i><span>{{ monthly_progress.total }} tasks</span></span>
+</div>
+
+<div class="chart-layout">
+<div class="stats-grid">
+<div class="stat-mini">
+<p class="stat-label">Total Completed</p>
+<p class="stat-value">{{ monthly_progress.total }}</p>
+</div>
+<div class="stat-mini">
+<p class="stat-label">Daily Average</p>
+<p class="stat-value">{{ monthly_progress.avg_daily }}</p>
+</div>
+</div>
+</div>
+</div>
+</div>
+
+<div class="dashboard-grid">
+<div class="panel chart-panel chart-panel-full">
+<div class="panel-head">
+<div class="panel-title-wrap">
+<h3>Monthly Trend</h3>
+<p>Daily task completion trend over 30 days.</p>
+</div>
+<span class="badge"><i class="fa-solid fa-line-chart"></i><span>Last 30 Days</span></span>
+</div>
+
+<div class="chart-layout">
+<div class="chart-wrap">
+<canvas id="monthlyChart"></canvas>
+</div>
+</div>
+</div>
+</div>
+
+</main>
+
+</div>
+
+<script id="task-chart-data" type="application/json">{{ task_chart_data | tojson }}</script>
+<script id="weekly-chart-data" type="application/json">{{ weekly_progress | tojson }}</script>
+<script id="monthly-chart-data" type="application/json">{{ monthly_progress | tojson }}</script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+const taskChartData = JSON.parse(document.getElementById("task-chart-data").textContent);
+const weeklyChartData = JSON.parse(document.getElementById("weekly-chart-data").textContent);
+const monthlyChartData = JSON.parse(document.getElementById("monthly-chart-data").textContent);
+const hasTaskData = taskChartData.values.some((value) => value > 0);
+const chartCanvas = document.getElementById("taskChart");
+const chartEmptyState = document.getElementById("chartEmptyState");
+let taskChartInstance;
+let weeklyChartInstance;
+let monthlyChartInstance;
+
+function getChartColors() {
+const styles = getComputedStyle(document.documentElement);
+return {
+completed: styles.getPropertyValue("--chart-completed").trim() || "#10b981",
+pending: styles.getPropertyValue("--chart-pending").trim() || "#f59e0b",
+text: styles.getPropertyValue("--text-soft").trim() || "#60708f",
+surface: styles.getPropertyValue("--surface-strong").trim() || "#ffffff",
+accent: styles.getPropertyValue("--accent-primary").trim() || "#3b82f6"
+};
+}
+
+function renderTaskChart() {
+const colors = getChartColors();
+
+if (taskChartInstance) {
+taskChartInstance.destroy();
+}
+
+taskChartInstance = new Chart(chartCanvas, {
+type: "doughnut",
+data: {
+labels: taskChartData.labels,
+datasets: [{
+data: taskChartData.values,
+backgroundColor: [colors.completed, colors.pending],
+borderColor: colors.surface,
+borderWidth: 6,
+hoverOffset: 8
+}]
+},
+options: {
+responsive: true,
+maintainAspectRatio: false,
+cutout: "62%",
+plugins: {
+legend: {
+position: "bottom",
+labels: {
+color: colors.text,
+padding: 18,
+font: {
+family: "Manrope",
+weight: "700"
+}
+}
+}
+}
+}
+});
+}
+
+function renderWeeklyChart() {
+const colors = getChartColors();
+
+if (weeklyChartInstance) {
+weeklyChartInstance.destroy();
+}
+
+weeklyChartInstance = new Chart(document.getElementById("weeklyChart"), {
+type: "bar",
+data: {
+labels: weeklyChartData.labels,
+datasets: [{
+label: "Tasks Completed",
+data: weeklyChartData.values,
+backgroundColor: colors.accent,
+borderColor: colors.accent,
+borderRadius: 6,
+borderSkipped: false
+}]
+},
+options: {
+responsive: true,
+maintainAspectRatio: false,
+indexAxis: "x",
+plugins: {
+legend: {
+display: true,
+labels: {
+color: colors.text,
+font: { family: "Manrope", weight: "600" }
+}
+}
+},
+scales: {
+y: {
+beginAtZero: true,
+ticks: { color: colors.text },
+grid: { color: "rgba(96, 112, 143, 0.1)" }
+},
+x: {
+ticks: { color: colors.text },
+grid: { display: false }
+}
+}
+}
+});
+}
+
+function renderMonthlyChart() {
+const colors = getChartColors();
+
+if (monthlyChartInstance) {
+monthlyChartInstance.destroy();
+}
+
+monthlyChartInstance = new Chart(document.getElementById("monthlyChart"), {
+type: "line",
+data: {
+labels: monthlyChartData.labels,
+datasets: [{
+label: "Daily Completion Trend",
+data: monthlyChartData.values,
+borderColor: colors.accent,
+backgroundColor: "rgba(59, 130, 246, 0.1)",
+borderWidth: 3,
+fill: true,
+tension: 0.4,
+pointBackgroundColor: colors.accent,
+pointBorderColor: colors.surface,
+pointBorderWidth: 2,
+pointRadius: 4,
+pointHoverRadius: 6
+}]
+},
+options: {
+responsive: true,
+maintainAspectRatio: false,
+plugins: {
+legend: {
+display: true,
+labels: {
+color: colors.text,
+font: { family: "Manrope", weight: "600" }
+}
+}
+},
+scales: {
+y: {
+beginAtZero: true,
+ticks: { color: colors.text },
+grid: { color: "rgba(96, 112, 143, 0.1)" }
+},
+x: {
+ticks: { color: colors.text },
+grid: { display: false }
+}
+}
+}
+});
+}
+
+if (hasTaskData) {
+renderTaskChart();
+document.addEventListener("themechange", renderTaskChart);
+} else {
+chartCanvas.style.display = "none";
+chartEmptyState.style.display = "flex";
+}
+
+renderWeeklyChart();
+renderMonthlyChart();
+document.addEventListener("themechange", renderWeeklyChart);
+document.addEventListener("themechange", renderMonthlyChart);
+</script>
+
+</body>
+</html>

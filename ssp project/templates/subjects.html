@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Subjects - Smart Study Planner</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+<script defer src="{{ url_for('static', filename='js/script.js') }}"></script>
+</head>
+
+<body class="page-shell page-subjects">
+
+<div class="container">
+
+<aside class="sidebar" id="appSidebar">
+<div class="sidebar-top">
+<a class="brand" href="{{ url_for('dashboard') }}">
+<span class="brand-mark"><i class="fa-solid fa-graduation-cap"></i></span>
+<span class="brand-copy">
+<span class="brand-eyebrow">Smart Study</span>
+<strong>Planner</strong>
+</span>
+</a>
+<button type="button" class="icon-btn sidebar-close" data-sidebar-close aria-label="Close menu">
+<i class="fa-solid fa-xmark"></i>
+</button>
+</div>
+
+<div class="sidebar-section">
+<p class="sidebar-label">Workspace</p>
+<nav class="sidebar-nav">
+<a class="nav-link" href="{{ url_for('dashboard') }}"><i class="fa-solid fa-chart-line"></i><span>Dashboard</span></a>
+<a class="nav-link active" href="{{ url_for('subjects') }}"><i class="fa-solid fa-book-open"></i><span>Subjects</span></a>
+<a class="nav-link" href="{{ url_for('tasks') }}"><i class="fa-solid fa-list-check"></i><span>Tasks</span></a>
+<a class="nav-link" href="{{ url_for('schedule') }}"><i class="fa-solid fa-calendar-days"></i><span>Schedule</span></a>
+<a class="nav-link" href="{{ url_for('logout') }}"><i class="fa-solid fa-arrow-right-from-bracket"></i><span>Logout</span></a>
+</nav>
+</div>
+
+<div class="sidebar-footer">
+<button type="button" class="theme-toggle" data-theme-toggle aria-label="Toggle color theme">
+<i class="fa-solid fa-moon"></i>
+<span>Dark mode</span>
+</button>
+</div>
+</aside>
+
+<div class="sidebar-overlay" data-sidebar-close></div>
+
+<main class="main">
+
+<div class="page-header">
+<div class="page-header-main">
+<div class="header-tools">
+<button type="button" class="icon-btn menu-toggle" data-sidebar-open aria-label="Open menu">
+<i class="fa-solid fa-bars"></i>
+</button>
+<p class="eyebrow">Subject Management</p>
+</div>
+<h1>Hello, {{ user_name }}</h1>
+<p class="page-subtitle">Organize your learning space with well-prioritized subjects that drive your tasks and automatic schedule.</p>
+</div>
+
+<div class="header-actions">
+<a class="secondary-btn" href="{{ url_for('tasks') }}"><i class="fa-solid fa-list-check"></i><span>Open Tasks</span></a>
+<a class="primary-btn" href="{{ url_for('schedule') }}"><i class="fa-solid fa-calendar-check"></i><span>Open Schedule</span></a>
+</div>
+</div>
+
+<div class="subject-layout">
+
+<div class="panel form-panel">
+<div class="panel-head">
+<div class="panel-title-wrap">
+<h3>Add New Subject</h3>
+<p>Create the subjects you want to study and assign their importance level.</p>
+</div>
+<span class="badge"><i class="fa-solid fa-book-medical"></i><span>New Subject</span></span>
+</div>
+
+{% if error %}
+<p class="form-error">{{ error }}</p>
+{% endif %}
+
+<form method="POST" class="subject-form">
+<input type="text" name="name" placeholder="Subject name" minlength="2" maxlength="50" value="{{ request.form.get('name', '') }}" required>
+
+<select name="priority" required>
+<option value="High" {% if request.form.get('priority') == 'High' %}selected{% endif %}>High Priority</option>
+<option value="Medium" {% if request.form.get('priority') == 'Medium' %}selected{% endif %}>Medium Priority</option>
+<option value="Low" {% if request.form.get('priority') == 'Low' %}selected{% endif %}>Low Priority</option>
+</select>
+
+<button type="submit" class="primary-btn"><i class="fa-solid fa-plus"></i><span>Add Subject</span></button>
+</form>
+</div>
+
+<div class="panel">
+<div class="panel-head">
+<div class="panel-title-wrap">
+<h3>Your Subjects</h3>
+<p>A clean overview of the subjects currently powering your study planner.</p>
+</div>
+<span class="badge"><i class="fa-solid fa-layer-group"></i><span>{{ subjects|length }} Total</span></span>
+</div>
+
+{% if subjects %}
+<div class="list">
+{% for subject in subjects %}
+<div class="list-item">
+<div class="list-item-body">
+<span class="list-item-icon accent-purple"><i class="fa-solid fa-book-bookmark"></i></span>
+<div>
+<strong>{{ subject["name"] }}</strong>
+<p>Priority: {{ subject["priority"] }}</p>
+</div>
+</div>
+
+<div class="task-row-actions">
+<span class="badge"><i class="fa-solid fa-bolt"></i><span>{{ subject["priority"] }}</span></span>
+<form method="POST" action="{{ url_for('delete_subject', subject_id=subject['id']) }}">
+<button type="submit" class="danger-btn"><i class="fa-solid fa-trash"></i><span>Delete</span></button>
+</form>
+</div>
+</div>
+{% endfor %}
+</div>
+{% else %}
+<p class="empty-state">You have not added any subjects yet. Add one to start building a more organized study flow.</p>
+{% endif %}
+</div>
+
+</div>
+
+</main>
+
+</div>
+
+</body>
+</html>

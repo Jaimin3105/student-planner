@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Login - Smart Study Planner</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+<script defer src="{{ url_for('static', filename='js/script.js') }}"></script>
+</head>
+
+<body class="auth-page page-login">
+
+<button type="button" class="theme-toggle auth-theme-toggle" data-theme-toggle aria-label="Toggle color theme">
+<i class="fa-solid fa-moon"></i>
+<span>Dark mode</span>
+</button>
+
+<div class="auth-layout">
+
+<div class="auth-showcase">
+<div class="auth-logo">
+<span class="brand-mark"><i class="fa-solid fa-graduation-cap"></i></span>
+<div class="brand-copy">
+<span class="brand-eyebrow">Smart Study</span>
+<strong>Planner</strong>
+</div>
+</div>
+
+<p class="eyebrow">Welcome Back</p>
+<h1>Study with clarity, structure, and momentum.</h1>
+<p>Sign in to manage tasks, track completion rates, and generate a focused daily study plan from your real deadlines and subject priorities.</p>
+
+<div class="auth-feature-list">
+<div class="auth-feature">
+<i class="fa-solid fa-chart-line"></i>
+<div>
+<strong>Live Progress Dashboard</strong>
+<span>See task totals, completion rates, and visual insights the moment you log in.</span>
+</div>
+</div>
+
+<div class="auth-feature">
+<i class="fa-solid fa-list-check"></i>
+<div>
+<strong>Task-Driven Workflow</strong>
+<span>Keep every task connected to a real subject, deadline, and completion state.</span>
+</div>
+</div>
+
+<div class="auth-feature">
+<i class="fa-solid fa-calendar-day"></i>
+<div>
+<strong>One-Day Smart Scheduling</strong>
+<span>Create a clean daily study plan using subject priority and the hours you choose.</span>
+</div>
+</div>
+</div>
+</div>
+
+<div class="login-box">
+<p class="eyebrow">Account Access</p>
+<h2>Login</h2>
+<p class="auth-subtitle">Continue where you left off and keep your study plan moving forward.</p>
+
+{% if error %}
+<p class="form-error">{{ error }}</p>
+{% endif %}
+
+<form method="POST">
+<input type="email" name="email" placeholder="Email" maxlength="120" value="{{ request.form.get('email', '') }}" required>
+<input type="password" name="password" placeholder="Password" minlength="6" maxlength="128" required>
+<button type="submit" class="primary-btn"><i class="fa-solid fa-right-to-bracket"></i><span>Login</span></button>
+<p class="auth-switch">No account? <a href="{{ url_for('register') }}">Register</a></p>
+</form>
+</div>
+
+</div>
+
+</body>
+</html>
